@@ -17,6 +17,7 @@ static NSString *GBASettingsFrameSkipKey = @"frameSkip";
 static NSString *GBASettingsAutosaveKey = @"autosave";
 static NSString *GBASettingsPreferExternalAudioKey = @"preferExternalAudio";
 static NSString *GBASettingsVibrateKey = @"vibrate";
+static NSString *GBASettingsTapticKey = @"tapticLevel";
 static NSString *GBASettingsShowFramerateKey = @"showFramerate";
 static NSString *GBASettingsControllerOpacityKey = @"controllerOpacity";
 static NSString *GBASettingsDropboxSyncKey = @"dropboxSync";
@@ -49,6 +50,10 @@ static NSString *GBASettingsRememberLastWebpageKey = @"rememberLastWebpage";
 @interface GBASettingsViewController : UITableViewController
 
 @property (weak, nonatomic) id<GBASettingsViewControllerDelegate> delegate;
+
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
++ (instancetype)controller;
 
 + (void)registerDefaults;
 

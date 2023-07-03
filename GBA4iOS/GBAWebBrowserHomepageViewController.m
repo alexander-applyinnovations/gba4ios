@@ -17,16 +17,11 @@
 
 @implementation GBAWebBrowserHomepageViewController
 
-- (instancetype)init
++ (instancetype)controller
 {
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Settings" bundle:nil];
-    self = [storyboard instantiateViewControllerWithIdentifier:@"webBrowserHomepageViewController"];
-    if (self)
-    {
-        
-    }
-    
-    return self;
+    GBAWebBrowserHomepageViewController *controller = [storyboard instantiateViewControllerWithIdentifier:@"webBrowserHomepageViewController"];
+    return controller;
 }
 
 - (void)viewDidLoad
@@ -97,6 +92,9 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [super tableView:tableView cellForRowAtIndexPath:indexPath];
+    if (@available(iOS 13.0, *)) {
+        cell.textLabel.textColor = [UIColor labelColor];
+    }
     
     if (indexPath.section != 0)
     {

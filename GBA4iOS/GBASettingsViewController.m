@@ -50,6 +50,7 @@ NSString *const GBASettingsDropboxStatusChangedNotification = @"GBASettingsDropb
 @property (weak, nonatomic) IBOutlet UISwitch *autosaveSwitch;
 @property (weak, nonatomic) IBOutlet UISwitch *preferExternalAudioSwitch;
 @property (weak, nonatomic) IBOutlet UISwitch *vibrateSwitch;
+@property (weak, nonatomic) IBOutlet UISegmentedControl *tapticSegmentedControl;
 @property (weak, nonatomic) IBOutlet UISlider *controllerOpacitySlider;
 @property (weak, nonatomic) IBOutlet UILabel *controllerOpacityLabel;
 @property (weak, nonatomic) IBOutlet UISwitch *airplaySwitch;
@@ -77,15 +78,11 @@ NSString *const GBASettingsDropboxStatusChangedNotification = @"GBASettingsDropb
 
 @implementation GBASettingsViewController
 
-- (id)init
++ (instancetype)controller
 {
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Settings" bundle:nil];
-    self = [storyboard instantiateViewControllerWithIdentifier:@"settingsViewController"];
-    if (self)
-    {
-        // Custom initialization
-    }
-    return self;
+    GBASettingsViewController *controller = [storyboard instantiateViewControllerWithIdentifier:@"settingsViewController"];
+    return controller;
 }
 
 - (void)viewDidLoad
@@ -157,6 +154,8 @@ NSString *const GBASettingsDropboxStatusChangedNotification = @"GBASettingsDropb
     self.autosaveSwitch.on = [[NSUserDefaults standardUserDefaults] boolForKey:GBASettingsAutosaveKey];
     self.preferExternalAudioSwitch.on = [[NSUserDefaults standardUserDefaults] boolForKey:GBASettingsPreferExternalAudioKey];
     self.vibrateSwitch.on = [[NSUserDefaults standardUserDefaults] boolForKey:GBASettingsVibrateKey];
+    self.tapticSegmentedControl.enabled = [[UIDevice currentDevice] hasHapticEngine] && self.vibrateSwitch.on;
+    self.tapticSegmentedControl.selectedSegmentIndex = [[NSUserDefaults standardUserDefaults] integerForKey:GBASettingsTapticKey];
     self.airplaySwitch.on = [[NSUserDefaults standardUserDefaults] boolForKey:GBASettingsAirPlayEnabledKey];
     self.controllerOpacitySlider.value = [[NSUserDefaults standardUserDefaults] floatForKey:GBASettingsControllerOpacityKey];
     self.rememberLastWebpageSwitch.on = [[NSUserDefaults standardUserDefaults] boolForKey:GBASettingsRememberLastWebpageKey];
@@ -246,18 +245,6 @@ NSString *const GBASettingsDropboxStatusChangedNotification = @"GBASettingsDropb
     }
     
     return [super tableView:tableView numberOfRowsInSection:section];
-}
-
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    UITableViewCell *cell = [super tableView:tableView cellForRowAtIndexPath:indexPath];
-    cell.backgroundColor = [UIColor whiteColor];
-    cell.textLabel.textColor = [UIColor blackColor];
-    cell.textLabel.backgroundColor = [UIColor whiteColor];
-    cell.detailTextLabel.backgroundColor = [UIColor whiteColor];
-    
-    return cell;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
@@ -351,6 +338,18 @@ NSString *const GBASettingsDropboxStatusChangedNotification = @"GBASettingsDropb
 {
     [[NSUserDefaults standardUserDefaults] setBool:sender.on forKey:GBASettingsVibrateKey];
     [[NSNotificationCenter defaultCenter] postNotificationName:GBASettingsDidChangeNotification object:self userInfo:@{@"key": GBASettingsVibrateKey, @"value": @(sender.on)}];
+    [self updateControls];
+}
+
+- (IBAction)setTapticLevel:(id)sender {
+    UISegmentedControl *control = sender;
+    [[NSUserDefaults standardUserDefaults] setInteger:control.selectedSegmentIndex forKey:GBASettingsTapticKey];
+    [[NSNotificationCenter defaultCenter] postNotificationName:GBASettingsDidChangeNotification object:self userInfo:@{@"key": GBASettingsTapticKey, @"value": @(control.selectedSegmentIndex)}];
+    
+    //Send user feedback on that level
+    UIImpactFeedbackGenerator *generator = [[UIImpactFeedbackGenerator alloc] initWithStyle:control.selectedSegmentIndex];
+    [generator prepare];
+    [generator impactOccurred];
 }
 
 - (IBAction)togglePreferExternalAudio:(UISwitch *)sender
@@ -417,19 +416,19 @@ NSString *const GBASettingsDropboxStatusChangedNotification = @"GBASettingsDropb
     }
     else if (indexPath.section == PUSH_NOTIFICATIONS_SECTION)
     {
-        GBAPushNotificationsViewController *pushNotificationsViewController = [GBAPushNotificationsViewController new];
+        GBAPushNotificationsViewController *pushNotificationsViewController = [GBAPushNotificationsViewController controller];
         [self.navigationController pushViewController:pushNotificationsViewController animated:YES];
     }
     else if (indexPath.section == ORIGINAL_GAMEBOY_SECTION)
     {
-        GBAColorSelectionViewController *colorSelectionViewController = [GBAColorSelectionViewController new];
+        GBAColorSelectionViewController *colorSelectionViewController = [GBAColorSelectionViewController controller];
         [self.navigationController pushViewController:colorSelectionViewController animated:YES];
     }
     else if (indexPath.section == WEB_BROWSER_SECTION)
     {
         if (indexPath.row == 0)
         {
-            GBAWebBrowserHomepageViewController *homepageViewController = [GBAWebBrowserHomepageViewController new];
+            GBAWebBrowserHomepageViewController *homepageViewController = [GBAWebBrowserHomepageViewController controller];
             [self.navigationController pushViewController:homepageViewController animated:YES];
         }
     }
@@ -450,7 +449,7 @@ NSString *const GBASettingsDropboxStatusChangedNotification = @"GBASettingsDropb
     }
     else if (indexPath.section == EXTERNAL_CONTROLLER_SECTION)
     {
-        GBAExternalControllerCustomizationViewController *externalControllerCustomizationViewController = [[GBAExternalControllerCustomizationViewController alloc] init];
+        GBAExternalControllerCustomizationViewController *externalControllerCustomizationViewController = [GBAExternalControllerCustomizationViewController controller];
         
         if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
         {
@@ -474,7 +473,7 @@ NSString *const GBASettingsDropboxStatusChangedNotification = @"GBASettingsDropb
     }
     else if (indexPath.section == SOFTWARE_UPDATE_SECTION)
     {
-        GBASoftwareUpdateViewController *softwareUpdateViewController = [[GBASoftwareUpdateViewController alloc] init];
+        GBASoftwareUpdateViewController *softwareUpdateViewController = [GBASoftwareUpdateViewController controller];
         [self.navigationController pushViewController:softwareUpdateViewController animated:YES];
     }
     else if (indexPath.section == CREDITS_SECTION)

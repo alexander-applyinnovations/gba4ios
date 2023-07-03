@@ -15,16 +15,11 @@
 
 @implementation GBAColorSelectionViewController
 
-- (instancetype)init
++ (instancetype)controller
 {
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Settings" bundle:nil];
-    self = [storyboard instantiateViewControllerWithIdentifier:@"colorSelectionViewController"];
-    if (self)
-    {
-        // Custom initialization
-    }
-    
-    return self;
+    GBAColorSelectionViewController *controller = [storyboard instantiateViewControllerWithIdentifier:@"colorSelectionViewController"];
+    return controller;
 }
 
 - (void)viewDidLoad
@@ -111,6 +106,9 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [super tableView:tableView cellForRowAtIndexPath:indexPath];
+    if (@available(iOS 13.0, *)) {
+        cell.textLabel.textColor = [UIColor labelColor];
+    }
     
     GBCColorPalette selectedColorPalette = [[NSUserDefaults standardUserDefaults] integerForKey:GBASettingsSelectedColorPaletteKey];
     
