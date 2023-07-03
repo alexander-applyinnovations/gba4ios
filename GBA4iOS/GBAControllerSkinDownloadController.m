@@ -99,9 +99,7 @@ static void *GBAControllerSkinDownloadControllerContext = &GBAControllerSkinDown
     __block NSProgress *progress = nil;
     
     __strong NSURLSessionDownloadTask *downloadTask = [manager downloadTaskWithRequest:request
-        progress:^(NSProgress * _Nonnull downloadProgress) {
-            progress = downloadProgress;
-    } destination:^NSURL *(NSURL *targetPath, NSURLResponse *response) {
+        progress:&progress destination:^NSURL *(NSURL *targetPath, NSURLResponse *response) {
         
         NSString *filepath = [[targetPath path] stringByDeletingPathExtension];
         filepath = [filepath stringByAppendingPathExtension:controllerSkin.filename.pathExtension];

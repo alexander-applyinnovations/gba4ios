@@ -267,9 +267,7 @@ static void * GBADownloadProgressTotalUnitContext = &GBADownloadProgressTotalUni
     NSURL *destinationURL = [NSURL fileURLWithPath:[uniqueEventDirectory stringByAppendingPathComponent:[self remoteROMFilename]]];
     
     __strong NSURLSessionDownloadTask *downloadTask = [manager downloadTaskWithRequest:request
-      progress:^(NSProgress * _Nonnull downloadProgress) {
-        progress = downloadProgress;
-    } destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
+      progress:&progress destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
         return destinationURL;
     } completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable fileURL, NSError * _Nullable error) {
         [self.currentDownloads removeObject:event];
