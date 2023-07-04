@@ -83,15 +83,14 @@
 - (void)restClient:(DBUserClient*)client deletePathFailedWithError:(NSError *)error routeError:(DBFILESDeleteError *)routeError
 {
     dispatch_async(self.ugh_dropbox_requiring_main_thread_dispatch_queue, ^{
-        NSString *dropboxPath = [error userInfo][@"path"];
-        
-        NSMutableDictionary *pendingDeletions = [[GBASyncManager sharedManager] pendingDeletions];
+        NSString *dropboxPath = [error userInfo][@"path"] ?: self.dropboxPath;
         
         if (/*[error code] == DBErrorFileNotFound*/(routeError && [routeError pathLookup].tag == DBFILESLookupErrorNotFound) || [error code] == 404)
         {
             DLog(@"File doesn't exist for deletion, so ignoring %@", [dropboxPath lastPathComponent]);
             
-            [pendingDeletions removeObjectForKey:dropboxPath];
+            NSMutableDictionary *pendingDeletions = [[GBASyncManager sharedManager] pendingDeletions];
+            if (dropboxPath) [pendingDeletions removeObjectForKey:dropboxPath];
             [pendingDeletions writeToFile:[GBASyncManager pendingDeletionsPath] atomically:YES];
             
             [self finishSyncWithError:nil];

@@ -39,7 +39,7 @@
     if (metadata == nil)
     {
         NSDictionary *dropboxFiles = [[GBASyncManager sharedManager] dropboxFiles];
-        metadata = dropboxFiles[self.dropboxPath];
+        metadata = dropboxFiles[self.dropboxPath.lowercaseString];
     }
     
     DBFILESFileMetadata *fileMetadata = (DBFILESFileMetadata *)metadata;
